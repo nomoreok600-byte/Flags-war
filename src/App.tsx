@@ -60,7 +60,7 @@ export default function App() {
   const [videoDesc, setVideoDesc] = useState<string>(() => 
     localStorage.getItem('stream_video_desc') || 'Welcome to Flag Wars! Watch countries expand and battle in real-time.'
   );
-  const [bitrate, setBitrate] = useState<string>('2500k'); 
+  const [bitrate, setBitrate] = useState<string>('1000k'); 
   const [showKey, setShowKey] = useState<boolean>(false);
   
   // Streaming state machine
@@ -507,13 +507,15 @@ export default function App() {
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Target Stream Quality</label>
               <div className="grid grid-cols-3 gap-1.5">
                 {[
-                  { value: '1500k', label: 'Lite (1.5M)', desc: 'RDP Safe' },
-                  { value: '2500k', label: 'Balanced', desc: 'Recommended' },
-                  { value: '3500k', label: 'High (3.5M)', desc: 'HD 60fps' }
+                  { value: '1000k', label: 'Mobile (1M)', desc: 'Phone Safe' },
+                  { value: '1800k', label: 'Lite (1.8M)', desc: 'RDP Safe' },
+                  { value: '2500k', label: 'Balanced', desc: 'Recommended' }
                 ].map((item) => (
                   <button
                     key={item.value}
-                    onClick={() => setBitrate(item.value)}
+                    onClick={() => {
+                      setBitrate(item.value);
+                    }}
                     className={`flex flex-col items-center p-1.5 rounded-lg border text-center transition-all cursor-pointer ${
                       bitrate === item.value 
                         ? 'bg-indigo-500/20 border-indigo-500 text-indigo-200' 
