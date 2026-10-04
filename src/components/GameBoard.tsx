@@ -337,6 +337,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     let animationFrameId: number;
     let lastTime = performance.now();
     let lastTickTime = performance.now();
+    let lastRafTime = performance.now();
     const cellW = canvas.width / gridCols;
     const cellH = canvas.height / gridRows;
 
@@ -1348,6 +1349,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       }
 
       if (!isBackup) {
+        lastRafTime = performance.now();
         animationFrameId = requestAnimationFrame((t) => gameLoop(t, false));
       }
     };
@@ -1357,6 +1359,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({
     // Watchdog fallback loop for background streaming (e.g. when RDP window is disconnected)
     const backupIntervalId = setInterval(() => {
       const now = performance.now();
+      // If requestAnimationFrame is active, let it handle the loop exclusively to prevent clashes!
+      if (now - lastRafTime < 250) {
+        return;
+      }
       if (now - lastTickTime > 150) {
         // requestAnimationFrame has been throttled or suspended! Force a tick to keep stream alive.
         gameLoop(now, true);
@@ -1384,12 +1390,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   ]);
 
   return (
-    <div className="relative flex items-center justify-center bg-slate-950 p-0 sm:p-1 rounded-xl shadow-2xl border border-slate-800/60 w-full h-full max-w-full aspect-square overflow-hidden">
+    <div className="relative flex items-center justify-center bg-slate-950 p-0 sm:p-1 rounded-xl shadow-2xl border border-slate-800/60 w-full aspect-square overflow-hidden">
       <canvas
         ref={canvasRef}
         width={720}
         height={720}
-        className="w-full h-full max-w-full max-h-full aspect-square rounded-lg shadow-inner cursor-crosshair select-none object-contain block"
+        className="w-full aspect-square rounded-lg shadow-inner cursor-crosshair select-none object-contain block"
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           const scale = 720 / rect.width;
