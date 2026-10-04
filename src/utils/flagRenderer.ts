@@ -67,12 +67,15 @@ export function drawCountryBall(
 ) {
   ctx.save();
 
-  // 1. Soft Drop Shadow cast onto the grid floor
+  // 1. Soft Drop Shadow cast onto the grid floor using hardware-accelerated radial gradients
   ctx.save();
+  const shadowGrad = ctx.createRadialGradient(x + 2, y + radius * 0.85, 0, x + 2, y + radius * 0.85, radius * 0.9);
+  shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.45)');
+  shadowGrad.addColorStop(0.6, 'rgba(0, 0, 0, 0.2)');
+  shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = shadowGrad;
   ctx.beginPath();
   ctx.ellipse(x + 2, y + radius * 0.85, radius * 0.9, radius * 0.35, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-  ctx.filter = 'blur(3px)';
   ctx.fill();
   ctx.restore();
 
@@ -83,8 +86,6 @@ export function drawCountryBall(
     ctx.arc(x, y, radius + 7, 0, Math.PI * 2);
     ctx.strokeStyle = '#f59e0b';
     ctx.lineWidth = 3.5;
-    ctx.shadowColor = '#f59e0b';
-    ctx.shadowBlur = 16;
     ctx.stroke();
     ctx.restore();
   }
@@ -94,12 +95,7 @@ export function drawCountryBall(
   ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
   ctx.strokeStyle = isFrozen ? '#38bdf8' : country.accentColor || country.primaryColor;
   ctx.lineWidth = isFrozen ? 3.5 : 2.5;
-  if (isFrozen) {
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 12;
-  }
   ctx.stroke();
-  ctx.shadowBlur = 0;
 
   // 4. Circular Flag Sphere Clip
   ctx.save();
@@ -161,8 +157,6 @@ export function drawCountryBall(
     ctx.beginPath();
     ctx.ellipse(eyeX, eyeY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
     ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-    ctx.shadowBlur = 3;
     ctx.fill();
 
     ctx.lineWidth = 1.8;
@@ -537,10 +531,7 @@ export function drawTerritoryCenterEmblem(
   ctx.fill();
   ctx.strokeStyle = country.accentColor || country.primaryColor;
   ctx.lineWidth = 2.5;
-  ctx.shadowColor = country.accentColor || country.primaryColor;
-  ctx.shadowBlur = 8;
   ctx.stroke();
-  ctx.shadowBlur = 0;
 
   // Flag emoji or national emblem
   ctx.font = `bold ${Math.round(emblemSize)}px sans-serif`;
@@ -550,9 +541,10 @@ export function drawTerritoryCenterEmblem(
 
   // Label tag below
   ctx.font = `900 ${Math.max(10, Math.round(11 * scale))}px sans-serif`;
+  // Double-draw clean outline shadow for speed
+  ctx.fillStyle = '#000000';
+  ctx.fillText(`${country.name.toUpperCase()} (${territoryPercentage.toFixed(0)}%)`, 1, emblemSize + 14);
   ctx.fillStyle = '#ffffff';
-  ctx.shadowColor = '#000000';
-  ctx.shadowBlur = 4;
   ctx.fillText(`${country.name.toUpperCase()} (${territoryPercentage.toFixed(0)}%)`, 0, emblemSize + 13);
 
   ctx.restore();

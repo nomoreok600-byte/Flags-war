@@ -5,6 +5,7 @@ import {
   drawTerritoryCell,
   drawTerritoryCenterEmblem,
   drawSectorBackgroundFlag,
+  applyClothWaveLighting,
 } from '../utils/flagRenderer';
 import { soundEngine } from '../utils/audio';
 import { commentator } from '../utils/commentator';
@@ -1127,15 +1128,17 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             ctx.fillStyle = owner.primaryColor;
             ctx.fillRect(x, y, cellW, cellH);
           } else {
-            // Quality Mode: Real cloth waving lighting offset
-            const waveLight = Math.sin(c * 0.16 + r * 0.12 + time * 0.0022) * 0.12;
-            ctx.save();
-            drawTerritoryCell(ctx, owner, x, y, cellW, cellH, c, r, waveLight);
-            ctx.restore();
+            // Quality Mode: Real cloth waving lighting offset rendered at infinite speed with NO individual save/restores!
+            drawTerritoryCell(ctx, owner, x, y, cellW, cellH, c, r, 0);
           }
         }
       }
       ctx.globalAlpha = 1.0;
+
+      // Apply the beautiful waving cloth folds once globally over the entire canvas (Saves 2,300+ separate drawing passes!)
+      if (!potatoMode) {
+        applyClothWaveLighting(ctx, 0, 0, canvas.width, canvas.height, timeSec);
+      }
 
       // Draw Separating Hairline Grid (Bypassed in Potato Mode for 120 FPS Boost!)
       if (!potatoMode) {
@@ -1298,10 +1301,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         ctx.save();
         ctx.font = 'bold 14px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillStyle = ft.color;
-        ctx.shadowColor = '#000000';
-        ctx.shadowBlur = 4;
         ctx.globalAlpha = Math.max(0, 1 - ft.life / ft.maxLife);
+        // Double-draw shadow instead of expensive canvas shadowBlur
+        ctx.fillStyle = '#000000';
+        ctx.fillText(ft.text, ft.x + 1, ft.y + 1);
+        ctx.fillStyle = ft.color;
         ctx.fillText(ft.text, ft.x, ft.y);
         ctx.restore();
       });
