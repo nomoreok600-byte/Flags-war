@@ -1,0 +1,6 @@
+{
+  "name": "Flag Wars - 24/7 YouTube Live Stream Game",
+  "description": "Automated 24/7 live stream territory battle game where country balls conquer the grid and multiply as territory expands.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
